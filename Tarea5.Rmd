@@ -1,0 +1,134 @@
+---
+title: "Tarea 5"
+author: "Jorge Pino"
+date: "15-11-2018"
+output: html_document
+---
+
+#Pregunta 3
+
+##a)
+
+```{r, echo=FALSE}
+#Pregunta 3
+
+library(ggplot2)
+library(gridExtra)
+
+reps = 10000
+n = c(50, 100, 500, 1000)
+betas=matrix(NA, nrow = reps, ncol=8)
+beta0 = 2
+beta1 = 2.5
+beta2 = 1
+
+for(j in 1:length(n)){
+  x1 = rnorm(n[j],20,1)
+  e = rnorm(n[j],0,1)
+  x2 = 0.8*x1 + e
+  for(i in 1:reps){
+    u=rnorm(n[j],0,1)
+    y=beta0 + beta1*x1 + beta2*x2 + u
+    model=lm(y~x1)
+    betas[i,j]=model$coef[1]
+    betas[i,j+4]=model$coef[2]
+  }
+}
+betas_df<-data.frame(betas)
+means <- apply(betas,2,mean)
+vars <- apply(betas,2,var)
+
+sesgob0 = c(means[[1]]-2, means[[2]]-2,means[[3]]-2,means[[4]]-2)
+sesgob1 = c(means[[5]]-2.5, means[[6]]-2.5, means[[7]]-2.5, means[[8]]-2.5)
+```
+
+##b)
+
+```{r, echo=FALSE}
+
+#b)
+g1 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,5], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,5]), sd=sd(betas_df[,5])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=50") 
+g2 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,6], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,6]), sd=sd(betas_df[,6])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=100")
+
+g3 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,7], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,7]), sd=sd(betas_df[,7])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=500")
+
+g4 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,8], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,8]), sd=sd(betas_df[,8])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=1000")
+
+grid.arrange(g1, g2, g3, g4, ncol = 2, nrow = 2, top = "Distribución Beta1")
+
+#lo raro de esto es que cuando aumenta el tamaño muestral, las colas se me alejaron más y están demasiado sesgados
+```
+
+##c)
+
+```{r, echo=FALSE}
+#c)
+
+reps = 10000
+n = c(50, 100, 500, 1000)
+betas=matrix(NA, nrow = reps, ncol=8)
+beta0 = 2
+beta1 = 2.5
+beta2 = 1
+
+for(j in 1:length(n)){
+  x1 = rnorm(n[j],20,1)
+  e = rnorm(n[j],0,1)
+  x2 = runif(n[j],0,1)
+  for(i in 1:reps){
+    u=rnorm(n[j],0,1)
+    y=beta0 + beta1*x1 + beta2*x2 + u
+    model=lm(y~x1)
+    betas[i,j]=model$coef[1]
+    betas[i,j+4]=model$coef[2]
+  }
+}
+betas_df<-data.frame(betas)
+means <- apply(betas,2,mean)
+vars <- apply(betas,2,var)
+
+sesgob0 = c(means[[1]]-2, means[[2]]-2,means[[3]]-2,means[[4]]-2)
+sesgob1 = c(means[[5]]-2.5, means[[6]]-2.5, means[[7]]-2.5, means[[8]]-2.5)
+
+
+g1 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,5], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,5]), sd=sd(betas_df[,5])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=50") 
+g2 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,6], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,6]), sd=sd(betas_df[,6])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=100")
+
+g3 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,7], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,7]), sd=sd(betas_df[,7])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=500")
+
+g4 <- ggplot(betas_df) +
+  geom_histogram(aes(betas_df[,8], y =..density..), col="black", bins=30) +
+  stat_function(fun=dnorm, args=list(mean=mean(betas_df[,8]), sd=sd(betas_df[,8])),
+                geom="line",colour="red", size=1) +
+  ylab("densidad") + xlab(expression(hat(beta)[1])) + theme_bw() + ggtitle("n=1000")
+
+grid.arrange(g1, g2, g3, g4, ncol = 2, nrow = 2, top = "Distribución Beta1")
+```
